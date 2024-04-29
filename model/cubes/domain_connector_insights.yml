@@ -1,0 +1,94 @@
+cubes:
+  - name: domain_connector_insights
+    sql_table: insights.domain_connector_insights
+
+    joins: []
+
+    dimensions:
+      - name: id
+        sql: id
+        type: string
+        primary_key: true
+
+      - name: event_type
+        sql: event_type
+        type: string
+
+      - name: metadata
+        sql: metadata
+        type: string
+
+      - name: from_address
+        sql: from_address
+        type: string
+
+      - name: capture_key
+        sql: capture_key
+        type: string
+
+      - name: message_id
+        sql: message_id
+        type: string
+
+      - name: timestamp
+        sql: timestamp
+        type: time
+
+      - name: created_at
+        sql: created_at
+        type: time
+
+      - name: updated_at
+        sql: updated_at
+        type: time
+
+      - name: deleted_at
+        sql: deleted_at
+        type: time
+
+    measures:
+      - name: total_events
+        type: count
+
+      - name: delivery_count
+        type: count
+        filters:
+          - sql: "event_type = 'Delivery'"
+
+      - name: bounce_count
+        type: count
+        filters:
+          - sql: "event_type = 'Bounce'"
+
+      - name: open_count
+        type: count
+        filters:
+          - sql: "event_type = 'Open'"
+
+      - name: click_count
+        type: count
+        filters:
+          - sql: "event_type = 'Click'"
+
+      - name: total_email_sent
+        type: number
+        sql: "{delivery_count} + {bounce_count}"
+
+      - name: deliveryRate
+        type: number
+        sql: "CASE WHEN {total_email_sent} > 0 THEN (100.0 * {delivery_count} / {total_email_sent}) / 100.0 ELSE 0 END"
+        format: percent
+
+      - name: openRate
+        type: number
+        sql: "CASE WHEN {total_email_sent} > 0 THEN (100.0 * {open_count} / {total_email_sent}) / 100.0 ELSE 0 END"
+        format: percent
+
+      - name: clickRate
+        type: number
+        sql: "CASE WHEN {total_email_sent} > 0 THEN (100.0 * {click_count} / {total_email_sent}) / 100.0 ELSE 0 END"
+        format: percent
+
+    pre_aggregations:
+      # Pre-aggregation definitions go here.
+      # Learn more in the documentation: https://cube.dev/docs/caching/pre-aggregations/getting-started
